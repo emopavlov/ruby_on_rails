@@ -2,7 +2,7 @@ class Address
   include Mongoid::Document
   field :city, type: String
   field :state, type: String
-  field :location, type: Point, label: :loc
+  field :loc, type: Point, as: :location
 
   attr_accessor :city, :state, :location
 
