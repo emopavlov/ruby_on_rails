@@ -6,7 +6,7 @@ class Address
 
   attr_accessor :city, :state, :location
 
-  def initialize(city, state, location)
+  def initialize(city=nil, state=nil, location=nil)
     @city = city
     @state = state
     @location = location
