@@ -11,6 +11,7 @@ class Race
   field :n, as: :name, type: String
   field :date, type: Date
   field :loc, as: :location, type: Address
+  field :next_bib, type: Integer, default: 0
 
   embeds_many :events, class_name: 'Event', as: :parent, order: [:order.asc]
   has_many :entrants, foreign_key: "race._id", dependent: :delete, order: [:secs.asc, :bib.asc]
@@ -52,4 +53,45 @@ class Race
     end
   end
 
+  def next_bib
+    inc(next_bib: 1)[:next_bib]
+  end
+
+  def get_group racer
+    if racer && racer.birth_year && racer.gender
+      quotient=(date.year-racer.birth_year)/10
+      min_age=quotient*10
+      max_age=((quotient+1)*10)-1
+      gender=racer.gender
+      name=min_age >= 60 ? "masters #{gender}" : "#{min_age} to #{max_age} (#{gender})"
+      Placing.demongoize(:name=>name)
+    end
+  end
+
+  def create_entrant racer
+    entrant = Entrant.new
+    entrant.build_race(self.attributes.symbolize_keys.slice(:_id, :n, :date))
+    entrant.build_racer(racer.info.attributes)
+    entrant.group = get_group(racer)
+    self.events.each do |event|
+      entrant.send("#{event.name}=", event)
+    end
+    entrant.validate
+    if entrant.valid?
+      entrant.bib = self.next_bib
+      entrant.save
+    end
+    entrant
+  end
+
+  def self.upcoming_available_to racer
+    racer_race_registration_ids = Entrant.collection.aggregate([
+      {:$match => {:"racer.racer_id" => racer.id}},
+      {:$project => {"race._id" => 1,}},
+      {:$unwind => "$race"},
+      {:$group => {:_id => "$race._id"}}
+    ]).to_a.map {|h| h[:_id]}
+
+    upcoming.where({:_id => { :$nin => racer_race_registration_ids }})
+  end
 end
