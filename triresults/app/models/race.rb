@@ -28,6 +28,7 @@ class Race
     ["order","distance","units"].each do |prop|
       if DEFAULT_EVENTS["#{name}"][prop.to_sym]
         define_method("#{name}_#{prop}") do
+          self.send("#{name}").send("#{prop}")
         end
         define_method("#{name}_#{prop}=") do |value|
         end

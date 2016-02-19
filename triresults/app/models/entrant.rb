@@ -79,10 +79,10 @@ class Entrant
     #expose setter/getter for each property of each result
     RESULTS["#{name}"].attribute_names.reject {|r|/^_/===r}.each do |prop|
       define_method("#{name}_#{prop}") do
-        event=self.send(name).send(prop)
+        event=self.send("#{name}").send("#{prop}")
       end
       define_method("#{name}_#{prop}=") do |value|
-        event=self.send(name)
+        event=self.send("#{name}")
         event.send("#{prop}=",value)
         update_total event if /secs/===prop
       end
