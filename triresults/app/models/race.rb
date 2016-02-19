@@ -89,7 +89,6 @@ class Race
     racer_race_registration_ids = Entrant.collection.aggregate([
       {:$match => {:"racer.racer_id" => racer.id}},
       {:$project => {"race._id" => 1,}},
-      {:$unwind => "$race"},
       {:$group => {:_id => "$race._id"}}
     ]).to_a.map {|h| h[:_id]}
 
