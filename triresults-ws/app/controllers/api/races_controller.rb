@@ -3,6 +3,19 @@ module Api
 
     protect_from_forgery with: :null_session
 
+    rescue_from Mongoid::Errors::DocumentNotFound do |exception|
+      @msg = "woops: cannot find race[#{params[:id]}]"
+      if !request.accept || request.accept == "*/*"
+        render plain: @msg, status: :not_found
+      else
+        render action: 'error', status: :not_found
+      end
+    end
+
+    rescue_from ActionView::MissingTemplate do |exception|
+      render plain: "woops: we do not support that content-type[#{request.accept}])", status: :unsupported_media_type
+    end
+
     def index
       if !request.accept || request.accept == "*/*"
         render plain: "/api/races, offset=[#{params[:offset]}], limit=[#{params[:limit]}]"
@@ -15,8 +28,8 @@ module Api
       if !request.accept || request.accept == "*/*"
         render plain: "/api/races/#{params[:id]}"
       else
-        race = Race.find(params[:id])
-        render json: race
+        @race = Race.find(params[:id])
+        render action: 'race'
       end
     end
 
@@ -32,6 +45,7 @@ module Api
 
     def update
       race = Race.find(params[:id])
+
       if race
         race.update_attributes(race_params)
         render json: race
