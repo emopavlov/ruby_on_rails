@@ -73,7 +73,7 @@ feature "Module #4 Resource Implementation (JSON)", :type => :routing do
       entrant = race.create_entrant(racer)
       expect(c_values = Entrant.where(id:entrant.id).pluck(:created_at, :updated_at, :secs).flatten).to_not be_nil
       c_updated_time = c_values[1]
-      total_secs = c_values[2]
+      total_secs = c_values[2] ||= 0
 
       (0..evt_array.length-1).each { |n|
         j_string = {:result=>{evt_array[n]=>time_array[n]}}.to_json

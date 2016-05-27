@@ -11,7 +11,7 @@ class Entrant
   store_in collection: 'results'
 
   field :bib, type: Integer
-  field :secs, type: Float
+  field :secs, type: Integer
   field :o, as: :overall, type: Placing
   field :gender, type: Placing
   field :group, type: Placing

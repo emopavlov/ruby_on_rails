@@ -52,7 +52,7 @@ module Test_utils
         clear_all_collections
         init_race
         init_racer
-        race = Race.first
+        race = Race.past.first
         racers = Racer.all.to_a
         (0..[racers.length, 5].min).each { |r|
             race.create_entrant(racers[r])

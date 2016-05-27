@@ -25,7 +25,7 @@ Rails.application.routes.draw do
     end
     
     resources :races do
-      resources :results, only: [:index, :show]
+      resources :results, only: [:index, :show, :update]
     end
   end
 
